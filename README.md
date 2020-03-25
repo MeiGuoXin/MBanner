@@ -33,7 +33,7 @@ allprojects {
 ```groovy
  implementation 'com.github.MeiGuoXin:MBanner:1.0.0'
 ```
-### 3在xml文件中添加 MBanner
+### 3.在xml文件中添加 MBanner
 ```xml
  <com.mgx.mbanner.custom.MBanner
    android:id="@+id/banner"
