@@ -1,4 +1,5 @@
 apply plugin: 'com.android.application'
+apply plugin: 'com.novoda.bintray-release'
 
 android {
     compileSdkVersion 29
@@ -26,8 +27,27 @@ android {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
-}
 
+    //添加
+    publish {
+        userOrg = 'meiguoxin'//bintray.com用户名
+        groupId = 'com.meiguoxin'//jcenter上的路径
+        artifactId = 'mBanner'//项目名称
+        publishVersion = '1.0.0'//版本号
+        //【视频图片混播】支持视频边缓存边播放，支持Glide加载图片
+        desc = 'This is a round robin of video and picture mixed broadcast'//描述，不重要
+        website = 'https://github.com/MeiGuoXin/MBanner'
+    }
+    tasks.withType(Javadoc) {//防止编码问题
+        options.addStringOption('Xdoclint:none', '-quiet')
+        options.addStringOption('encoding', 'UTF-8')
+        options.addStringOption('charSet', 'UTF-8')
+    }
+
+    lintOptions {
+        abortOnError false
+    }
+}
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation 'androidx.appcompat:appcompat:1.1.0'
@@ -35,7 +55,6 @@ dependencies {
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'androidx.test.ext:junit:1.1.1'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
-    //可选，如需要缓存或者抖音预加载功能请引入此库
     implementation 'com.github.dueeeke.dkplayer:videocache:3.1.4'
     implementation project(':mbanner')
 }
