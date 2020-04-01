@@ -92,7 +92,7 @@ protected void onDestroy() {
  }
 ```
 ### 感谢
-[沉默ne](https://blog.csdn.net/a598068693/article/details/80341099)|
+[沉默ne](https://blog.csdn.net/a598068693/article/details/80341099)
 [DKVideoPlayer](https://github.com/dueeeke/DKVideoPlayer)
 ## License
 
