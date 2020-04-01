@@ -21,35 +21,31 @@
  startBanner()  | 开始轮播 | 设置完毕后开始调用
  startAutoPlay() | 开始视频自动播放 | 自动播放视频
  
-## 基本使用	
-### 1.添加远程仓库
+### 1.添加Gradle 依赖
 ```groovy
-allprojects {
-  repositories {
-  ...
-  maven { url 'https://jitpack.io' }
-}
+  implementation 'com.meiguoxin:mbanner:1.0.0'
 ```
-### 2.添加Gradle 依赖
-```groovy
- implementation 'com.github.MeiGuoXin:MBanner:1.0.0'
-```
-### 3.在xml文件中添加 MBanner
+### 2.在xml文件中添加 MBanner
 ```xml
   <!--占位图控件-->
-  <ImageView
-      android:id="@+id/image"
-      android:layout_width="match_parent"
-      android:layout_height="match_parent">
-  </ImageView>
-	
- <com.mgx.mbanner.custom.MBanner
-   android:id="@+id/banner"
-   android:layout_width="match_parent"
-   android:layout_height="260dp">
- </com.mgx.mbanner.custom.MBanner>
+<ImageView
+     android:id="@+id/splash_logos"
+     android:layout_width="360dp"
+     android:layout_height="match_parent"
+android:layout_gravity="center" />
+
+<com.mgx.mbanner.custom.MBanner
+    android:id="@+id/banner"
+    android:layout_width="match_parent"
+    android:layout_height="200dp"
+    app:layout_constraintBottom_toBottomOf="parent"
+    app:layout_constraintLeft_toLeftOf="parent"
+    app:layout_constraintRight_toRightOf="parent"
+    app:layout_constraintTop_toTopOf="parent">
+
+</com.mgx.mbanner.custom.MBanner>
 ```
-### 4.在 Activity 或者 Fragment 中配置 MBanner 的数据源
+### 3.在 Activity 或者 Fragment 中配置 MBanner 的数据源
 ```java
  private void initView() {
    mImageView = findViewById(R.id.image);
@@ -71,7 +67,7 @@ allprojects {
    mBanner.startAutoPlay();
 }
 ```
-### 5.在Activity的onDestroy中进行销毁
+### 4.在Activity的onDestroy中进行销毁
 ```java 
 @Override
 protected void onDestroy() {
