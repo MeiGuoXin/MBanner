@@ -9,7 +9,7 @@
 - [x] 支持图片和视频缓存(接入DKVideoPlayer带缓冲的播放器)
 	
 ## 效果显示
-
+![image](https://github.com/MeiGuoXin/MBanner/blob/master/app/src/main/java/com/mgx/mbanner/sample/image/1585732787919.gif)
 ## 开放API
 ### 该方法属于MBanner
 方法名  | 方法描述  | 说明
