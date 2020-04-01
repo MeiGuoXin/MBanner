@@ -21,7 +21,7 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.dueeeke.videoplayer.player.VideoView;
 import com.mgx.mbanner.adapter.BannerViewAdapter;
-import com.mgx.mbanner.myInterface.StateListener;
+import com.mgx.mbanner.myInterface.IStateListener;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,7 +30,7 @@ import java.util.List;
  * 2020年2月16
  * 说明:图片视频混播
  */
-public class MBanner extends RelativeLayout implements StateListener {
+public class MBanner extends RelativeLayout implements IStateListener {
     private ViewPager mViewPager;
     //图片默认时间间隔
     private long imgDelay = 2000;
@@ -44,6 +44,9 @@ public class MBanner extends RelativeLayout implements StateListener {
     private int autoCurrIndex = 0;
     //默认显示位置
     private final int DEFAULT_DISPLAY_LOCATION = 100;
+    //第三方播放器 带缓冲
+    private CacheVideoView mVideoView;
+    private List<String> mListData;
 
     public MBanner(Context context) {
         super(context);
@@ -75,14 +78,11 @@ public class MBanner extends RelativeLayout implements StateListener {
     }
 
     /**
-     * @param dataList      图片和视频的数据源 必填
-     * @param defaultBitmap 占位图 传入自己的占位图 必填
+     * @param dataList 图片和视频的数据源 必填
      */
     @Override
-    public void setDataList(List<String> dataList, int defaultBitmap) {
-        if (dataList == null) {
-            dataList = new ArrayList<>();
-        }
+    public void setDataList(List<String> dataList) {
+        mListData = dataList;
         //用于显示的数组
         if (mViews == null) {
             mViews = new ArrayList<>();
@@ -93,17 +93,17 @@ public class MBanner extends RelativeLayout implements StateListener {
         RequestOptions options = new RequestOptions();
         options.centerCrop();
         //数据大于一条，才可以循环
-        if (dataList.size() > 1) {
+        if (mListData.size() > 1) {
             autoCurrIndex = 1;
             //循环数组，将首位各加一条数据
-            for (int i = 0, len = dataList.size() + 2; i < len; i++) {
+            for (int i = 0, len = mListData.size() + 2; i < len; i++) {
                 String url;
                 if (i == 0) {
-                    url = dataList.get(dataList.size() - 1);
-                } else if (i == dataList.size() + 1) {
-                    url = dataList.get(0);
+                    url = mListData.get(mListData.size() - 1);
+                } else if (i == mListData.size() + 1) {
+                    url = mListData.get(0);
                 } else {
-                    url = dataList.get(i - 1);
+                    url = mListData.get(i - 1);
                 }
                 //视频
                 if (MimeTypeMap.getFileExtensionFromUrl(url).equals("mp4")) {
@@ -112,102 +112,30 @@ public class MBanner extends RelativeLayout implements StateListener {
                     setImageSelection(lp, url, options);
                 }
             }
-        } else if (dataList.size() == 1) {
+        } else if (mListData.size() == 1) {
             autoCurrIndex = 0;
-            String url = dataList.get(0);
+            String url = mListData.get(0);
             if (MimeTypeMap.getFileExtensionFromUrl(url).equals("mp4")) {
                 setVideoSelection(url, lp);
             } else {
                 setImageSelection(lp, url, options);
             }
-        } else {
-            //没有图片的占位图
-            //setImageSelection(lp, url, options);
         }
     }
 
     /**
-     * @param lp      显示图片的位置
-     * @param url     没有数据默认图片或有数据要显示的图片
-     * @param options
+     * 延时播放
+     *
+     * @param imgDelay 延时播放的时间
      */
-    private void setImageSelection(LinearLayout.LayoutParams lp, String url, RequestOptions options) {
-        //没有图片的占位图
-        ImageView imageView = new ImageView(getContext());
-        imageView.setLayoutParams(lp);
-        imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
-        Glide.with(getContext()).load(url).apply(options).into(imageView);
-        mViews.add(imageView);
-    }
-
-    /**
-     * @param url 视频地址
-     * @param lp  要显示的位置
-     */
-    private void setVideoSelection(String url, LinearLayout.LayoutParams lp) {
-        //原声播放器
-        /*final MyVideoView myVideoView = new MyVideoView(getContext());
-        myVideoView.setLayoutParams(lp);
-        myVideoView.setVideoPath(url);
-        myVideoView.start();*/
-        //监听视频播放完的代码
-  /*      myVideoView.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
-            @Override
-            public void onCompletion(MediaPlayer mPlayer) {
-                mPlayer.start();
-                mPlayer.setLooping(true);
-            }
-        });
-        mViews.add(myVideoView);*/
-        //第三方播放器
-        VideoView videoView = new VideoView(getContext());
-        //画面填充
-        videoView.setScreenScaleType(VideoView.SCREEN_SCALE_MATCH_PARENT);
-        videoView.setLayoutParams(lp);
-        videoView.setUrl(url);
-        videoView.start();
-        mViews.add(videoView);
-    }
-
-    /**
-     * 获取视频时长以及已经播放的时间
-     */
-    private class GetVideoDuration implements Runnable {
-
-        private VideoView videoView;
-        private Runnable runnable;
-
-        public void getDelayTime(VideoView videoView, Runnable runnable) {
-            this.videoView = videoView;
-            this.runnable = runnable;
-        }
-
-        @Override
-        public void run() {
-            long current = videoView.getCurrentPosition();
-            long duration = videoView.getDuration();
-            long delyedTime = duration - current;
-            mHandler.postDelayed(runnable, delyedTime);
-        }
-    }
-
-    //接受消息实现轮播
-    @SuppressLint("HandlerLeak")
-    public Handler mHandler = new Handler() {
-        public void handleMessage(Message msg) {
-            switch (msg.what) {
-                case DEFAULT_DISPLAY_LOCATION:
-                    mViewPager.setCurrentItem(autoCurrIndex + 1);
-                    break;
-            }
-        }
-    };
-
     @Override
     public void setImgDelay(int imgDelay) {
         this.imgDelay = imgDelay;
     }
 
+    /**
+     * 开始播放
+     */
     @Override
     public void startBanner() {
         mAdapter = new BannerViewAdapter(mViews);
@@ -223,7 +151,6 @@ public class MBanner extends RelativeLayout implements StateListener {
 
             @Override
             public void onPageSelected(int position) {
-                Log.d("TAG", "position:" + position);
                 //当前位置
                 autoCurrIndex = position;
                 getDelayedTime(position);
@@ -231,7 +158,6 @@ public class MBanner extends RelativeLayout implements StateListener {
 
             @Override
             public void onPageScrollStateChanged(int state) {
-                Log.d("TAG", "" + state);
                 //移除自动计时
                 mHandler.removeCallbacks(runnable);
                 //ViewPager跳转
@@ -270,10 +196,64 @@ public class MBanner extends RelativeLayout implements StateListener {
         });
     }
 
+    @Override
+    public void dataChange(List<String> list) {
+        if (list != null && list.size() > 0) {
+            //改变资源时要重新开启循环，否则会把视频的时长赋给图片，或者相反
+            mHandler.removeCallbacks(runnable);
+            setDataList(list);
+            mAdapter.setDataList(mViews);
+            mAdapter.notifyDataSetChanged();
+            mViewPager.setCurrentItem(autoCurrIndex, false);
+            //开启循环
+            if (isAutoPlay && mViews.size() > 1) {
+                getDelayedTime(autoCurrIndex);
+                if (delayTime <= 0) {
+                    mHandler.postDelayed(mGetVideoDuration, imgDelay);
+                } else {
+                    mHandler.postDelayed(runnable, delayTime);
+                }
+            }
+        }
+    }
+
+    @Override
+    public void startAutoPlay() {
+        isAutoPlay = true;
+        if (mViews.size() > 1) {
+            getDelayedTime(autoCurrIndex);
+            if (delayTime <= 0) {
+                mHandler.postDelayed(mGetVideoDuration, imgDelay);
+            } else {
+                mHandler.postDelayed(runnable, delayTime);
+            }
+        }
+    }
+
     /**
-     * 获取delyedTime
+     * 占位图片
      *
-     * @param position 当前位置
+     * @param imageViewId   控件的id
+     * @param defaultBitmap 占位图
+     *                      注意:注意调用顺序setDataList()-->setPlaceholder()
+     */
+    @Override
+    public void setPlaceholder(ImageView imageViewId, int defaultBitmap) {
+        getPlaceholder(imageViewId, defaultBitmap);
+    }
+
+
+    protected void getPlaceholder(ImageView imageViewId, int defaultBitmap) {
+        if (null != mListData && mListData.size() <= 0) {
+            imageViewId.setVisibility(View.VISIBLE);
+            imageViewId.setImageResource(defaultBitmap);
+        } else {
+            imageViewId.setVisibility(View.GONE);
+        }
+    }
+
+    /**
+     * 延时播放
      */
     private void getDelayedTime(int position) {
         View view1 = mViews.get(position);
@@ -291,46 +271,69 @@ public class MBanner extends RelativeLayout implements StateListener {
     /**
      * 发消息，进行循环
      */
-    private Runnable runnable = new Runnable() {
-        @Override
-        public void run() {
-            mHandler.sendEmptyMessage(DEFAULT_DISPLAY_LOCATION);
-        }
+    private Runnable runnable = () -> {
+        this.mHandler.sendEmptyMessage(DEFAULT_DISPLAY_LOCATION);
     };
 
-    @Override
-    public void startAutoPlay() {
-        isAutoPlay = true;
-        if (mViews.size() > 1) {
-            getDelayedTime(autoCurrIndex);
-            if (delayTime <= 0) {
-                mHandler.postDelayed(mGetVideoDuration, imgDelay);
-            } else {
-                mHandler.postDelayed(runnable, delayTime);
-            }
+    /**
+     * @param lp      显示图片的位置
+     * @param url     没有数据默认图片或有数据要显示的图片
+     * @param options
+     */
+    protected void setImageSelection(LinearLayout.LayoutParams lp, String url, RequestOptions options) {
+        ImageView imageView = new ImageView(getContext());
+        imageView.setLayoutParams(lp);
+        imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
+        Glide.with(getContext()).load(url).apply(options).into(imageView);
+        mViews.add(imageView);
+    }
+
+    /**
+     * @param url 视频地址
+     * @param lp  要显示的位置
+     */
+    protected void setVideoSelection(String url, LinearLayout.LayoutParams lp) {
+        mVideoView = new CacheVideoView(getContext());
+        //画面填充
+        mVideoView.setScreenScaleType(VideoView.SCREEN_SCALE_MATCH_PARENT);
+        mVideoView.setLayoutParams(lp);
+        mVideoView.setUrl(url);
+        mVideoView.start();
+        mViews.add(mVideoView);
+    }
+
+    /**
+     * 获取视频时长以及已经播放的时间
+     */
+    protected class GetVideoDuration implements Runnable {
+        private VideoView videoView;
+        private Runnable runnable;
+
+        public void getDelayTime(VideoView videoView, Runnable runnable) {
+            this.videoView = videoView;
+            this.runnable = runnable;
+        }
+
+        @Override
+        public void run() {
+            long current = videoView.getCurrentPosition();
+            long duration = videoView.getDuration();
+            long delyedTime = duration - current;
+            mHandler.postDelayed(runnable, delyedTime);
         }
     }
 
-    @Override
-    public void dataChange(List<String> list) {
-        if (list != null && list.size() > 0) {
-            //改变资源时要重新开启循环，否则会把视频的时长赋给图片，或者相反
-            mHandler.removeCallbacks(runnable);
-            setDataList(list, 0);
-            mAdapter.setDataList(mViews);
-            mAdapter.notifyDataSetChanged();
-            mViewPager.setCurrentItem(autoCurrIndex, false);
-            //开启循环
-            if (isAutoPlay && mViews.size() > 1) {
-                getDelayedTime(autoCurrIndex);
-                if (delayTime <= 0) {
-                    mHandler.postDelayed(mGetVideoDuration, imgDelay);
-                } else {
-                    mHandler.postDelayed(runnable, delayTime);
-                }
+    //接受消息实现轮播
+    @SuppressLint("HandlerLeak")
+    protected Handler mHandler = new Handler() {
+        public void handleMessage(Message msg) {
+            switch (msg.what) {
+                case DEFAULT_DISPLAY_LOCATION:
+                    mViewPager.setCurrentItem(autoCurrIndex + 1);
+                    break;
             }
         }
-    }
+    };
 
     //销毁
     public void destroy() {
