@@ -1,7 +1,6 @@
 # MBanner
 【视频图片混播】支持视频边缓存边播放，支持Glide加载图片
-## 说明
-项目依赖地址暂不可使用,但是可以依赖Module的形式进行使用
+
 ## 功能介绍
 - [x] 支持图片和视频的混合播放
 - [x] 暂时支持视频为MP4格式
@@ -32,7 +31,7 @@
      android:id="@+id/splash_logos"
      android:layout_width="360dp"
      android:layout_height="match_parent"
-android:layout_gravity="center" />
+     android:layout_gravity="center" />
 
 <com.mgx.mbanner.custom.MBanner
     android:id="@+id/banner"
