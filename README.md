@@ -16,7 +16,7 @@
 方法名  | 方法描述  | 说明
  ---- | ----- | ------  
  setDataList(List<String> dataList)  |设置图片和视频的集合
- setPlaceholder(ImageView imageViewId, int defaultBitmap)|imageViewId 占位图id  defaultBitmap占位图片资源
+ setPlaceholder(ImageView imageViewId, int defaultBitmap)|imageViewId 占位图id  defaultBitmap占位图片资源|请注意调用调用顺序
  setImgDelay(int imgDelay)  | 延时播放 | int类型毫秒
  startBanner()  | 开始轮播 | 设置完毕后开始调用
  startAutoPlay() | 开始视频自动播放 | 视频播放
@@ -41,7 +41,6 @@ allprojects {
       android:id="@+id/image"
       android:layout_width="match_parent"
       android:layout_height="match_parent">
-
   </ImageView>
 	
  <com.mgx.mbanner.custom.MBanner
@@ -62,6 +61,8 @@ allprojects {
    list.add("http://img5.imgtn.bdimg.com/it/u=1812408136,1922560783&fm=27&gp=0.jpg");
    //数据源
    banner.setDataList(list,0);
+   //没有数据时占位图
+   banner.setPlaceholder(splashLogo, R.mipmap.boan_ico);
    //设置延时播放
    banner.setImgDelay(5000);
    //开始轮播
