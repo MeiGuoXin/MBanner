@@ -15,7 +15,8 @@
 ### 该方法属于MBanner
 方法名  | 方法描述  | 说明
  ---- | ----- | ------  
- setDataList(List<String> dataList, int defaultBitmap)  |设置图片和视频的集合  |  defaultBitmap图片占位图(未完善)暂时传入0
+ setDataList(List<String> dataList)  |设置图片和视频的集合
+ setPlaceholder(ImageView imageViewId, int defaultBitmap)|imageViewId 占位图id  defaultBitmap占位图片资源
  setImgDelay(int imgDelay)  | 延时播放 | int类型毫秒
  startBanner()  | 开始轮播 | 设置完毕后开始调用
  startAutoPlay() | 开始视频自动播放 | 视频播放
@@ -35,6 +36,14 @@ allprojects {
 ```
 ### 3.在xml文件中添加 MBanner
 ```xml
+  <!--占位图控件-->
+  <ImageView
+      android:id="@+id/image"
+      android:layout_width="match_parent"
+      android:layout_height="match_parent">
+
+  </ImageView>
+	
  <com.mgx.mbanner.custom.MBanner
    android:id="@+id/banner"
    android:layout_width="match_parent"
@@ -44,11 +53,10 @@ allprojects {
 ### 4.在 Activity 或者 Fragment 中配置 MBanner 的数据源
 ```java
  private void initView() {
+   imageView = findViewById(R.id.image);
    banner = findViewById(R.id.banner);
-   HttpProxyCacheServer proxy = MyApplication.getProxy(getApplication());
-   String proxyUrl = proxy.getProxyUrl("http://vfx.mtime.cn/Video/2019/03/12/mp4/190312143927981075.mp4");
    list = new ArrayList<>();
-   list.add(proxyUrl);
+   list.add("http://vfx.mtime.cn/Video/2019/03/12/mp4/190312143927981075.mp4");
    list.add("http://img2.imgtn.bdimg.com/it/u=3817131034,1038857558&fm=27&gp=0.jpg");
    list.add("http://img1.imgtn.bdimg.com/it/u=4194723123,4160931506&fm=200&gp=0.jpg");
    list.add("http://img5.imgtn.bdimg.com/it/u=1812408136,1922560783&fm=27&gp=0.jpg");
