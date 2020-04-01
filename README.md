@@ -20,9 +20,26 @@
  startBanner()  | 开始轮播 | 设置完毕后开始调用
  startAutoPlay() | 开始视频自动播放 | 自动播放视频
  
-### 1.添加Gradle 依赖
+### 1.1添加轮Gradle依赖
 ```groovy
   implementation 'com.meiguoxin:mbanner:1.0.0'
+```
+### 1.2添加相关Gradle依赖(推荐使用dkplay 3.1.4版本,其他版本都存在问题)
+```groovy
+	//必选，内部默认使用系统mediaplayer进行解码
+    implementation 'com.github.dueeeke.dkplayer:dkplayer-java:3.1.4'
+    //可选，包含StandardVideoController的实现
+    implementation 'com.github.dueeeke.dkplayer:dkplayer-ui:3.1.4'
+    //可选，使用exoplayer进行解码（推荐）
+    implementation 'com.github.dueeeke.dkplayer:player-exo:3.1.4'
+    //可选，使用ijkplayer进行解码
+    implementation 'com.github.dueeeke.dkplayer:player-ijk:3.1.4'
+    //可选，如需要缓存或者抖音预加载功能请引入此库
+    implementation 'com.github.dueeeke.dkplayer:videocache:3.1.4'
+    //可选，如需要缓存或者抖音预加载功能请引入此库
+    implementation 'com.github.dueeeke.dkplayer:videocache:3.1.4'
+    implementation 'com.github.bumptech.glide:glide:4.9.0'
+    implementation 'com.google.sitebricks:slf4j:0.8.3'
 ```
 ### 2.在xml文件中添加 MBanner
 ```xml
@@ -76,6 +93,7 @@ protected void onDestroy() {
 ```
 ### 感谢
 [沉默ne](https://blog.csdn.net/a598068693/article/details/80341099)
+[DKVideoPlayer](https://github.com/dueeeke/DKVideoPlayer)
 ## License
 
 	Copyright 2020 MeiGuoXin
