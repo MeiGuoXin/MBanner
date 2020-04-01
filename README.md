@@ -43,7 +43,7 @@ implementation 'com.google.sitebricks:slf4j:0.8.3'
 ```
 ### 2.在xml文件中添加 MBanner
 ```xml
-  <!--占位图控件-->
+<!--占位图控件-->
 <ImageView
      android:id="@+id/splash_logos"
      android:layout_width="360dp"
@@ -92,7 +92,7 @@ protected void onDestroy() {
  }
 ```
 ### 感谢
-[沉默ne](https://blog.csdn.net/a598068693/article/details/80341099)
+[沉默ne](https://blog.csdn.net/a598068693/article/details/80341099)|
 [DKVideoPlayer](https://github.com/dueeeke/DKVideoPlayer)
 ## License
 
