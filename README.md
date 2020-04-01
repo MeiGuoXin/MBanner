@@ -52,23 +52,23 @@ allprojects {
 ### 4.在 Activity 或者 Fragment 中配置 MBanner 的数据源
 ```java
  private void initView() {
-   imageView = findViewById(R.id.image);
-   banner = findViewById(R.id.banner);
-   list = new ArrayList<>();
-   list.add("http://vfx.mtime.cn/Video/2019/03/12/mp4/190312143927981075.mp4");
-   list.add("http://img2.imgtn.bdimg.com/it/u=3817131034,1038857558&fm=27&gp=0.jpg");
-   list.add("http://img1.imgtn.bdimg.com/it/u=4194723123,4160931506&fm=200&gp=0.jpg");
-   list.add("http://img5.imgtn.bdimg.com/it/u=1812408136,1922560783&fm=27&gp=0.jpg");
+   mImageView = findViewById(R.id.image);
+   mBanner = findViewById(R.id.banner);
+   mList = new ArrayList<>();
+   mList.add("http://vfx.mtime.cn/Video/2019/03/12/mp4/190312143927981075.mp4");
+   mList.add("http://img2.imgtn.bdimg.com/it/u=3817131034,1038857558&fm=27&gp=0.jpg");
+   mList.add("http://img1.imgtn.bdimg.com/it/u=4194723123,4160931506&fm=200&gp=0.jpg");
+   mList.add("http://img5.imgtn.bdimg.com/it/u=1812408136,1922560783&fm=27&gp=0.jpg");
    //数据源
-   banner.setDataList(list,0);
+   mBanner.setDataList(mList);
    //没有数据时占位图
-   banner.setPlaceholder(splashLogo, R.mipmap.boan_ico);
+   mBanner.setPlaceholder(mImageView, R.mipmap.boan_ico);
    //设置延时播放
-   banner.setImgDelay(5000);
+   mBanner.setImgDelay(5000);
    //开始轮播
-   banner.startBanner();
+   mBanner.startBanner();
    //自动播放
-   banner.startAutoPlay();
+   mBanner.startAutoPlay();
 }
 ```
 ### 5.在Activity的onDestroy中进行销毁
