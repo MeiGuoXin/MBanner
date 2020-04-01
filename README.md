@@ -19,7 +19,7 @@
  setPlaceholder(ImageView imageViewId, int defaultBitmap)|imageViewId 占位图id  defaultBitmap占位图片资源|请注意调用顺序
  setImgDelay(int imgDelay)  | 延时播放 | int类型毫秒
  startBanner()  | 开始轮播 | 设置完毕后开始调用
- startAutoPlay() | 开始视频自动播放 | 视频播放
+ startAutoPlay() | 开始视频自动播放 | 自动播放
  
 ## 基本使用	
 ### 1.添加远程仓库
