@@ -20,7 +20,7 @@
  startBanner()  | 开始轮播 | 设置完毕后开始调用
  startAutoPlay() | 开始视频自动播放 | 自动播放视频
  
-### 1.1添加轮Gradle依赖
+### 1.1添加主Gradle依赖
 ```groovy
 implementation 'com.meiguoxin:mbanner:1.0.0'
 ```
