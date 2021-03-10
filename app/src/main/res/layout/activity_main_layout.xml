@@ -1,22 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     tools:context=".ui.MainActivity">
 
-<!--    占位图-->
-    <ImageView
-        android:id="@+id/image"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
-
-    </ImageView>
-
     <com.mgx.mbanner.custom.MBanner
         android:id="@+id/banner"
         android:layout_width="match_parent"
-        android:layout_height="260dp">
+        android:layout_height="260dp"
+        app:imgDelay="2000"
+        app:indicatorPosition="right"
+        app:isAutomaticVideoPlayback="true"
+        app:isDisplayIndicator="true"
+        app:isVideoCaching="true"
+        app:loadingErrorPicture="@mipmap/err"
+        app:showOccupationMap="@mipmap/seat"
+        app:watermarkLocation="bottom">
 
     </com.mgx.mbanner.custom.MBanner>
 </FrameLayout>

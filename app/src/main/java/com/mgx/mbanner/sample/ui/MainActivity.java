@@ -14,8 +14,6 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity {
     private MBanner banner;
     private List<String> list;
-    private ImageView imageView;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -24,19 +22,15 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void initView() {
-        imageView = findViewById(R.id.image);
         banner = findViewById(R.id.banner);
-        //HttpProxyCacheServer proxy = MyApplication.getProxy(getApplication());
-        //String proxyUrl = proxy.getProxyUrl("http://vfx.mtime.cn/Video/2019/03/12/mp4/190312143927981075.mp4");
         list = new ArrayList<>();
-        //list.add(proxyUrl);
-        list.add("http://vfx.mtime.cn/Video/2019/03/12/mp4/190312143927981075.mp4");
-        list.add("http://img2.imgtn.bdimg.com/it/u=3817131034,1038857558&fm=27&gp=0.jpg");
-        list.add("http://img1.imgtn.bdimg.com/it/u=4194723123,4160931506&fm=200&gp=0.jpg");
-        list.add("http://img5.imgtn.bdimg.com/it/u=1812408136,1922560783&fm=27&gp=0.jpg");
+        //https://mp4.vjshi.com/2020-12-02/6abe9321e8911b4f8671c4e8e2ad2d05.mp4
+        //http://vfx.mtime.cn/Video/2019/03/12/mp4/190312143927981075.mp4
+        list.add("https://mp4.vjshi.com/2020-12-02/6abe9321e8911b4f8671c4e8e2ad2d05.mp4");
+        list.add("https://seopic.699pic.com/photo/40187/0349.jpg_wh1200.jpg");
+        list.add("https://seopic.699pic.com/photo/40180/4128.jpg_wh1200.jpg");
+        list.add("https://seopic.699pic.com/photo/40186/8031.jpg_wh1200.jpg");
         banner.setDataList(list);
-        banner.setPlaceholder(imageView, R.mipmap.ic_launcher);
-        banner.setImgDelay(5000);
         banner.startBanner();
         banner.startAutoPlay();
     }

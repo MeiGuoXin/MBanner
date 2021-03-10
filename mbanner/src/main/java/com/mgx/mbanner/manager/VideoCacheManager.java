@@ -4,7 +4,6 @@ import android.content.Context;
 
 import com.danikula.videocache.HttpProxyCacheServer;
 import com.danikula.videocache.file.Md5FileNameGenerator;
-import com.mgx.mbanner.utils.StorageUtil;
 
 import java.io.File;
 
@@ -32,17 +31,17 @@ public class VideoCacheManager {
      *
      * @return 返回缓存是否删除成功
      */
-    public static boolean clearAllCache(Context context) {
+   /* public static boolean clearAllCache(Context context) {
         File cacheDirectory = StorageUtil.getIndividualCacheDirectory(context);
         return StorageUtil.deleteFiles(cacheDirectory);
-    }
+    }*/
 
     /**
      * 删除url对应默认缓存文件
      *
      * @return 返回缓存是否删除成功
      */
-    public static boolean clearDefaultCache(Context context, String url) {
+/*    public static boolean clearDefaultCache(Context context, String url) {
         Md5FileNameGenerator md5FileNameGenerator = new Md5FileNameGenerator();
         String name = md5FileNameGenerator.generate(url);
         String pathTmp = StorageUtil.getIndividualCacheDirectory
@@ -54,5 +53,5 @@ public class VideoCacheManager {
         return StorageUtil.deleteFile(pathTmp) &&
                 StorageUtil.deleteFile(path);
 
-    }
+    }*/
 }

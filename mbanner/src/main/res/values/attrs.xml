@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="MBanner">
+        <!--视频是否自动播放-->
+        <attr name="isAutomaticVideoPlayback" format="boolean" />
+        <!--是否显示指示器-->
+        <attr name="isDisplayIndicator" format="boolean" />
+        <!--指示器的位置-->
+        <attr name="indicatorPosition">
+            <flag name="top" value="0x01" />
+            <flag name="bottom" value="0x02" />
+            <flag name="left" value="0x04" />
+            <flag name="right" value="0x08" />
+        </attr>
+        <!--是否开启视频缓存-->
+        <attr name="isVideoCaching" format="boolean" />
+        <!--是否显示水印-->
+        <attr name="isWatermark" format="boolean" />
+        <!--水印的位置-->
+        <attr name="watermarkLocation">
+            <flag name="top" value="0x01" />
+            <flag name="bottom" value="0x02" />
+            <flag name="left" value="0x04" />
+            <flag name="right" value="0x08" />
+        </attr>
+        <!--占位图-->
+        <attr name="showOccupationMap" format="reference" />
+        <!--网络加载错误图片-->
+        <attr name="loadingErrorPicture" format="reference"/>
+        <!--图片默认时间间隔-->
+        <attr name="imgDelay" format="integer"/>
+        <!--是否预加载-->
+        <attr name="isPreloading" format="boolean"/>
+        <!--预加载的页数-->
+        <attr name="preloadingPages" format="integer"/>
+    </declare-styleable>
+</resources>
