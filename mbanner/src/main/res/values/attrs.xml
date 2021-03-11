@@ -27,11 +27,23 @@
         <attr name="showOccupationMap" format="reference" />
         <!--网络加载错误图片-->
         <attr name="loadingErrorPicture" format="reference"/>
-        <!--图片默认时间间隔-->
+        <!--图片延时播放-->
         <attr name="imgDelay" format="integer"/>
         <!--是否预加载-->
         <attr name="isPreloading" format="boolean"/>
         <!--预加载的页数-->
         <attr name="preloadingPages" format="integer"/>
+        <!--是否显示控制器-->
+        <attr name="isVideoController" format="boolean"/>
+
+
+        <!--指示器宽度-->
+        <attr name="indicatorWidth" format="dimension"/>
+        <!--指示器高度-->
+        <attr name="indicatorHeight" format="dimension"/>
+        <!--指示器未选中颜色-->
+        <attr name="indicatorNotSelectedBackgroundColor" format="color"/>
+        <!--指示器的宽度-->
+        <attr name="indicatorStrokeWidth" format="dimension"/>
     </declare-styleable>
 </resources>

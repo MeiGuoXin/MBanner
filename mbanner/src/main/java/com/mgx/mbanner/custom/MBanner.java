@@ -3,10 +3,12 @@ package com.mgx.mbanner.custom;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.TypedArray;
+import android.graphics.Canvas;
+import android.graphics.Paint;
+import android.graphics.RectF;
 import android.os.Handler;
 import android.os.Message;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.MimeTypeMap;
@@ -15,9 +17,11 @@ import android.widget.LinearLayout;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
+import com.dueeeke.videocontroller.StandardVideoController;
 import com.dueeeke.videoplayer.player.VideoView;
 import com.mgx.mbanner.R;
 import com.mgx.mbanner.adapter.BannerViewAdapter;
+import com.mgx.mbanner.utils.PixelConversion;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,19 +40,19 @@ public class MBanner extends LinearLayout implements ViewPager.OnPageChangeListe
      * 自动播放视频
      * 默认不开启 不开启:false 开启:true
      */
-    private Boolean mIsAutomaticVideoPlayback;
+    private boolean mIsAutomaticVideoPlayback;
 
     /**
      * 是否显示水印
      * 默认不显示 不显示:false 显示:true
      */
-    private Boolean mIsWatermark;
+    private boolean mIsWatermark;
 
     /**
      * 是否开启视频缓存
      * 默认不开启 不开启:false 开启:true
      */
-    private Boolean mIsVideoCaching;
+    private boolean mIsVideoCaching;
 
     /**
      * 显示占位图
@@ -59,7 +63,7 @@ public class MBanner extends LinearLayout implements ViewPager.OnPageChangeListe
      * 是否显示指示器
      * 默认不显示 不开启:false 开启:true
      */
-    private Boolean mIsDisplayIndicator;
+    private boolean mIsDisplayIndicator;
 
     /**
      * 轮播图的时间间隔
@@ -85,11 +89,15 @@ public class MBanner extends LinearLayout implements ViewPager.OnPageChangeListe
     /**
      * ViewPager是否预加载
      */
-    private Boolean mIsPreloading;
+    private boolean mIsPreloading;
     /**
      * 预加载的页数
      */
     private int mPreloadingPages;
+    /**
+     * 是否显示视频控制器
+     */
+    private boolean mIsVideoController;
 
     private ViewPager mViewPager;
     private List<String> mListData;
@@ -103,6 +111,34 @@ public class MBanner extends LinearLayout implements ViewPager.OnPageChangeListe
 
     //每个位置默认时间间隔
     private long delayTime = 2000;
+
+    /**
+     * 指示器宽度
+     */
+    private float mIndicatorWidth;
+    /**
+     * 指示器高度
+     */
+    private float mIndicatorHeight;
+    /**
+     * 未选中图片指示器的画笔
+     */
+    private Paint mUncheckedPaint;
+
+    /**
+     * 选中图片指示器的画笔
+     */
+    private Paint mSelectPaint;
+
+    /**
+     * 指示器未选中的背景颜色
+     */
+    private int mIndicatorNotSelectedBackgroundColor;
+
+    /**
+     * 指示器的实线宽度
+     */
+    private float mIndicatorStrokeWidth;
 
     public MBanner(Context context) {
         this(context, null);
@@ -121,6 +157,7 @@ public class MBanner extends LinearLayout implements ViewPager.OnPageChangeListe
      * 初始化view
      */
     private void initView(Context context, @Nullable AttributeSet attrs) {
+        setWillNotDraw(false);
         mGetVideoDuration = new GetVideoDuration();
         mViewPager = new ViewPager(getContext());
         LinearLayout.LayoutParams vp_param = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT);
@@ -135,23 +172,61 @@ public class MBanner extends LinearLayout implements ViewPager.OnPageChangeListe
         mLoadingErrorPicture = typedArray.getResourceId(R.styleable.MBanner_loadingErrorPicture, R.mipmap.err);
         mIsDisplayIndicator = typedArray.getBoolean(R.styleable.MBanner_isDisplayIndicator, false);
         mImgDelay = typedArray.getInt(R.styleable.MBanner_imgDelay, mDefaultImgDelay);
-        //水印的位置
-        mWatermarkLocation = typedArray.getInt(R.styleable.MBanner_watermarkLocation, -1);
-        //指示器的位置
-        mIndicatorPosition = typedArray.getInt(R.styleable.MBanner_indicatorPosition, -1);
         mIsPreloading = typedArray.getBoolean(R.styleable.MBanner_isPreloading, false);
         mPreloadingPages = typedArray.getInt(R.styleable.MBanner_preloadingPages, 0);
+        mIsVideoController = typedArray.getBoolean(R.styleable.MBanner_isVideoController, false);
+        //水印的位置
+        mWatermarkLocation = typedArray.getInt(R.styleable.MBanner_watermarkLocation, -1);
+
+        /**
+         * 以下是指示器的属性
+         */
+        mIndicatorWidth = typedArray.getDimension(R.styleable.MBanner_indicatorWidth, new PixelConversion().sp2px(6, getContext()));
+        mIndicatorHeight = typedArray.getDimension(R.styleable.MBanner_indicatorHeight, new PixelConversion().sp2px(6, getContext()));
+        mIndicatorPosition = typedArray.getInt(R.styleable.MBanner_indicatorPosition, -1);
+        mIndicatorNotSelectedBackgroundColor = typedArray.getColor(R.styleable.MBanner_indicatorNotSelectedBackgroundColor, getResources().getColor(R.color.dkplayer_background_color));
+        mIndicatorStrokeWidth = typedArray.getDimension(R.styleable.MBanner_indicatorStrokeWidth, new PixelConversion().sp2px(4, getContext()));
+
         //回收
         typedArray.recycle();
         if (mImgDelay <= 0) {
             //图片时间间隔必须大于0
             throw new RuntimeException("The time interval must be greater than zero");
         }
+
+        mUncheckedPaint = new Paint();
+        mUncheckedPaint.setAntiAlias(true);
+        mUncheckedPaint.setStyle(Paint.Style.STROKE);
+        mUncheckedPaint.setColor(mIndicatorNotSelectedBackgroundColor);
+        mUncheckedPaint.setStrokeWidth(mIndicatorStrokeWidth);
+
+        mSelectPaint = new Paint();
+        mSelectPaint.setAntiAlias(true);
+
     }
+
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+        int indicatorWidth = MeasureSpec.getSize(widthMeasureSpec);
+        int indicatorHeight = MeasureSpec.getSize(heightMeasureSpec);
+        if (indicatorWidth == MeasureSpec.UNSPECIFIED) {
+            throw new RuntimeException("Width must specify a fixed size");
+        }
+        if (indicatorHeight == MeasureSpec.UNSPECIFIED) {
+            throw new RuntimeException("Height must specify a fixed dimension");
+        }
+        setMeasuredDimension(indicatorWidth,indicatorHeight);
+    }
+
+    @Override
+    protected void onDraw(Canvas canvas) {
+        super.onDraw(canvas);
+       /* int center = (getWidth() / 2);
+        int radius = (int) (getWidth() / 2 - mIndicatorStrokeWidth);
+        RectF rectF = new RectF(center-50, center-50, center+50, center+50);
+        canvas.drawArc(rectF, 360, 360, true, mUncheckedPaint);*/
     }
 
     /**
@@ -235,6 +310,10 @@ public class MBanner extends LinearLayout implements ViewPager.OnPageChangeListe
      */
     protected void setVideoSelection(String url, LinearLayout.LayoutParams lp) {
         mVideoView = new CacheVideoView(getContext());
+        if (mIsVideoController) {
+            StandardVideoController controller = new StandardVideoController(getContext());
+            mVideoView.setVideoController(controller);
+        }
         mVideoView.setScreenScaleType(VideoView.SCREEN_SCALE_MATCH_PARENT);
         mVideoView.setLayoutParams(lp);
         mVideoView.setUrl(url);
@@ -379,7 +458,6 @@ public class MBanner extends LinearLayout implements ViewPager.OnPageChangeListe
                 delayTime = mImgDelay;
                 mHandler.postDelayed(runnable, delayTime);
             }
-            Log.d("TAG", "" + pageIndex + "--" + autoCurrIndex);
         }
     }
 
@@ -411,5 +489,32 @@ public class MBanner extends LinearLayout implements ViewPager.OnPageChangeListe
         mViews = null;
         mViewPager = null;
         mAdapter = null;
+    }
+
+    /**
+     * 暂停
+     */
+    public void onPause() {
+        if (mVideoView != null) {
+            mVideoView.pause();
+        }
+    }
+
+    /**
+     * 恢复
+     */
+    public void onResume() {
+        if (mVideoView != null) {
+            mVideoView.resume();
+        }
+    }
+
+    /**
+     * 销毁
+     */
+    public void onDestroy() {
+        if (mVideoView != null) {
+            mVideoView.release();
+        }
     }
 }
