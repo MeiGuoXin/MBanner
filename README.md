@@ -26,8 +26,8 @@
  startAutoPlay() | 开始视频自动播放 | 自动播放视频
   
 ## 属性介绍
-属性名  | 描述
- ----  | -----  | ------  
+属性名  | 方法描述
+ ---- | ----- | ------   
  imgDelay  | 轮播图的时间间隔
  isAutomaticVideoPlayback  | 自动播放视频
  isVideoController  | 是否显示视频控制器
