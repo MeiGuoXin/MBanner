@@ -73,12 +73,37 @@ implementation 'com.meiguoxin:mbanner:1.0.1'
 }
 ```
 ### 4.在Activity的onDestroy中进行销毁
+
 ```java 
 @Override
 protected void onDestroy() {
      super.onDestroy();
      banner.destroy();
  }
+```
+
+```java 
+public void onPause() {
+ if (mVideoView != null) {
+   mVideoView.pause();
+  }
+}
+```
+
+```java 
+public void onResume() {
+ if (mVideoView != null) {
+   mVideoView.resume();
+  }
+}
+```
+
+```java 
+public void onDestroy() {
+ if (mVideoView != null) {
+   mVideoView.release();
+  }
+}
 ```
 ### 感谢
 [沉默ne](https://blog.csdn.net/a598068693/article/details/80341099)
