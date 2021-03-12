@@ -1,8 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <declare-styleable name="MBanner">
-        <!--视频是否自动播放-->
-        <attr name="isAutomaticVideoPlayback" format="boolean" />
         <!--是否显示指示器-->
         <attr name="isDisplayIndicator" format="boolean" />
         <!--指示器的位置-->

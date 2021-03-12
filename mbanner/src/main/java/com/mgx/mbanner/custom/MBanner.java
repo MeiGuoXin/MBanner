@@ -5,7 +5,6 @@ import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Paint;
-import android.graphics.RectF;
 import android.os.Handler;
 import android.os.Message;
 import android.util.AttributeSet;
@@ -36,12 +35,6 @@ import androidx.viewpager.widget.ViewPager;
  * 备注:2021年3月10日修改
  */
 public class MBanner extends LinearLayout implements ViewPager.OnPageChangeListener {
-    /**
-     * 自动播放视频
-     * 默认不开启 不开启:false 开启:true
-     */
-    private boolean mIsAutomaticVideoPlayback;
-
     /**
      * 是否显示水印
      * 默认不显示 不显示:false 显示:true
@@ -165,7 +158,6 @@ public class MBanner extends LinearLayout implements ViewPager.OnPageChangeListe
         this.addView(mViewPager);
 
         TypedArray typedArray = context.obtainStyledAttributes(attrs, R.styleable.MBanner);
-        mIsAutomaticVideoPlayback = typedArray.getBoolean(R.styleable.MBanner_isAutomaticVideoPlayback, false);
         mIsWatermark = typedArray.getBoolean(R.styleable.MBanner_isWatermark, false);
         mIsVideoCaching = typedArray.getBoolean(R.styleable.MBanner_isVideoCaching, false);
         mShowOccupationMap = typedArray.getResourceId(R.styleable.MBanner_showOccupationMap, R.mipmap.seat);
@@ -217,7 +209,7 @@ public class MBanner extends LinearLayout implements ViewPager.OnPageChangeListe
         if (indicatorHeight == MeasureSpec.UNSPECIFIED) {
             throw new RuntimeException("Height must specify a fixed dimension");
         }
-        setMeasuredDimension(indicatorWidth,indicatorHeight);
+        setMeasuredDimension(indicatorWidth, indicatorHeight);
     }
 
     @Override
@@ -240,8 +232,6 @@ public class MBanner extends LinearLayout implements ViewPager.OnPageChangeListe
             mViews.clear();
         }
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
-        RequestOptions options = new RequestOptions();
-        options.centerCrop();
         if (mListData.size() > 1) {
             autoCurrIndex = 1;
             //循环数组，将首位各加一条数据
@@ -258,7 +248,7 @@ public class MBanner extends LinearLayout implements ViewPager.OnPageChangeListe
                 if (videoType(url)) {
                     setVideoSelection(url, lp);
                 } else {
-                    setImageSelection(lp, url, options);
+                    setImageSelection(lp, url);
                 }
             }
         } else if (mListData.size() == 1) {
@@ -267,7 +257,7 @@ public class MBanner extends LinearLayout implements ViewPager.OnPageChangeListe
             if (videoType(url)) {
                 setVideoSelection(url, lp);
             } else {
-                setImageSelection(lp, url, options);
+                setImageSelection(lp, url);
             }
         }
     }
@@ -292,21 +282,19 @@ public class MBanner extends LinearLayout implements ViewPager.OnPageChangeListe
     }
 
     /**
-     * @param lp      显示图片的位置
-     * @param url     没有数据默认图片或有数据要显示的图片
-     * @param options
+     * 显示图片
      */
-    protected void setImageSelection(LinearLayout.LayoutParams lp, String url, RequestOptions options) {
+    @SuppressLint("CheckResult")
+    protected void setImageSelection(LinearLayout.LayoutParams lp, String url) {
         ImageView imageView = new ImageView(getContext());
         imageView.setLayoutParams(lp);
         imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
-        Glide.with(getContext()).load(url).apply(options).into(imageView);
+        Glide.with(getContext()).load(url).apply(new RequestOptions().centerCrop().placeholder(mShowOccupationMap).error(mLoadingErrorPicture)).into(imageView);
         mViews.add(imageView);
     }
 
     /**
-     * @param url 视频地址
-     * @param lp  要显示的位置
+     * 视频
      */
     protected void setVideoSelection(String url, LinearLayout.LayoutParams lp) {
         mVideoView = new CacheVideoView(getContext());
@@ -403,7 +391,7 @@ public class MBanner extends LinearLayout implements ViewPager.OnPageChangeListe
             mAdapter.notifyDataSetChanged();
             mViewPager.setCurrentItem(autoCurrIndex, false);
             //开启循环
-            if (mIsAutomaticVideoPlayback && mViews.size() > 1) {
+            if (mViews.size() > 1) {
                 getDelayedTime(autoCurrIndex);
                 if (delayTime <= 0) {
                     mHandler.postDelayed(mGetVideoDuration, mImgDelay);
@@ -441,7 +429,7 @@ public class MBanner extends LinearLayout implements ViewPager.OnPageChangeListe
             mViewPager.setCurrentItem(pageIndex, false);
         }
         //停止滑动时，重新自动倒计时
-        if (state == 0 && mIsAutomaticVideoPlayback && mViews.size() > 1) {
+        if (state == 0 && mViews.size() > 1) {
             View view1 = mViews.get(pageIndex);
             if (view1 instanceof VideoView) {
                 final VideoView videoView = (VideoView) view1;
