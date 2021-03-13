@@ -17,13 +17,15 @@
         app:indicatorStrokeWidth="1dp"
         app:indicatorWidth="5dp"
         app:isDisplayIndicator="true"
+        app:isPreloading="true"
         app:isVideoCaching="true"
         app:isVideoController="false"
         app:loadingErrorPicture="@mipmap/err"
-        app:showOccupationMap="@mipmap/seat"
-        app:isPreloading="true"
         app:preloadingPages="1"
-        app:watermarkLocation="bottom">
+        app:showOccupationMap="@mipmap/seat"
+        app:watermarkLocation="bottom"
+        app:watermarkTextColor="@color/colorAccent"
+        app:watermarkTextSize="10sp">
 
     </com.mgx.mbanner.custom.MBanner>
 </FrameLayout>

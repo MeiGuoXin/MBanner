@@ -36,17 +36,10 @@ import androidx.viewpager.widget.ViewPager;
  */
 public class MBanner extends LinearLayout implements ViewPager.OnPageChangeListener {
     /**
-     * 是否显示水印
-     * 默认不显示 不显示:false 显示:true
-     */
-    private boolean mIsWatermark;
-
-    /**
      * 是否开启视频缓存
      * 默认不开启 不开启:false 开启:true
      */
     private boolean mIsVideoCaching;
-
     /**
      * 显示占位图
      */
@@ -72,6 +65,14 @@ public class MBanner extends LinearLayout implements ViewPager.OnPageChangeListe
      */
     private int mWatermarkLocation;
     /**
+     * 水印的文字颜色
+     */
+    private int mWatermarkTextColor;
+    /**
+     * 水印文字
+     */
+    private String mWatermarkText;
+    /**
      * 指示器的位置
      */
     private int mIndicatorPosition;
@@ -91,19 +92,6 @@ public class MBanner extends LinearLayout implements ViewPager.OnPageChangeListe
      * 是否显示视频控制器
      */
     private boolean mIsVideoController;
-
-    private ViewPager mViewPager;
-    private List<String> mListData;
-    private List<View> mViews;
-    private int autoCurrIndex = 0;
-    private CacheVideoView mVideoView;
-    private BannerViewAdapter mAdapter;
-    //默认显示位置
-    private static final int DEFAULT_DISPLAY_LOCATION = 100;
-    private GetVideoDuration mGetVideoDuration;
-
-    //每个位置默认时间间隔
-    private long delayTime = 2000;
 
     /**
      * 指示器宽度
@@ -133,6 +121,20 @@ public class MBanner extends LinearLayout implements ViewPager.OnPageChangeListe
      */
     private float mIndicatorStrokeWidth;
 
+    private ViewPager mViewPager;
+    private List<String> mListData;
+    private List<View> mViews;
+    private int autoCurrIndex = 0;
+    private CacheVideoView mVideoView;
+    private BannerViewAdapter mAdapter;
+    //默认显示位置
+    private static final int DEFAULT_DISPLAY_LOCATION = 100;
+    private GetVideoDuration mGetVideoDuration;
+
+    //每个位置默认时间间隔
+    private long delayTime = 2000;
+    private LinearLayout.LayoutParams lp;
+
     public MBanner(Context context) {
         this(context, null);
     }
@@ -158,7 +160,6 @@ public class MBanner extends LinearLayout implements ViewPager.OnPageChangeListe
         this.addView(mViewPager);
 
         TypedArray typedArray = context.obtainStyledAttributes(attrs, R.styleable.MBanner);
-        mIsWatermark = typedArray.getBoolean(R.styleable.MBanner_isWatermark, false);
         mIsVideoCaching = typedArray.getBoolean(R.styleable.MBanner_isVideoCaching, false);
         mShowOccupationMap = typedArray.getResourceId(R.styleable.MBanner_showOccupationMap, R.mipmap.seat);
         mLoadingErrorPicture = typedArray.getResourceId(R.styleable.MBanner_loadingErrorPicture, R.mipmap.err);
@@ -169,6 +170,8 @@ public class MBanner extends LinearLayout implements ViewPager.OnPageChangeListe
         mIsVideoController = typedArray.getBoolean(R.styleable.MBanner_isVideoController, false);
         //水印的位置
         mWatermarkLocation = typedArray.getInt(R.styleable.MBanner_watermarkLocation, -1);
+        mWatermarkTextColor = typedArray.getColor(R.styleable.MBanner_watermarkTextColor, getResources().getColor(R.color.dkplayer_background_color));
+        mWatermarkText = typedArray.getString(R.styleable.MBanner_watermarkText);
 
         /**
          * 以下是指示器的属性
@@ -185,7 +188,6 @@ public class MBanner extends LinearLayout implements ViewPager.OnPageChangeListe
             //图片时间间隔必须大于0
             throw new RuntimeException("The time interval must be greater than zero");
         }
-
         mUncheckedPaint = new Paint();
         mUncheckedPaint.setAntiAlias(true);
         mUncheckedPaint.setStyle(Paint.Style.STROKE);
@@ -215,10 +217,7 @@ public class MBanner extends LinearLayout implements ViewPager.OnPageChangeListe
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-       /* int center = (getWidth() / 2);
-        int radius = (int) (getWidth() / 2 - mIndicatorStrokeWidth);
-        RectF rectF = new RectF(center-50, center-50, center+50, center+50);
-        canvas.drawArc(rectF, 360, 360, true, mUncheckedPaint);*/
+
     }
 
     /**
@@ -231,7 +230,7 @@ public class MBanner extends LinearLayout implements ViewPager.OnPageChangeListe
         } else {
             mViews.clear();
         }
-        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+        lp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
         if (mListData.size() > 1) {
             autoCurrIndex = 1;
             //循环数组，将首位各加一条数据
@@ -308,7 +307,6 @@ public class MBanner extends LinearLayout implements ViewPager.OnPageChangeListe
         mVideoView.start();
         mViews.add(mVideoView);
     }
-
     /**
      * 开始轮播
      */

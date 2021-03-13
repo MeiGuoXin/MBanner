@@ -12,8 +12,12 @@
         </attr>
         <!--是否开启视频缓存-->
         <attr name="isVideoCaching" format="boolean" />
-        <!--是否显示水印-->
-        <attr name="isWatermark" format="boolean" />
+        <!--水印文字的颜色-->
+        <attr name="watermarkTextColor" format="color"/>
+        <!--水印文字-->
+        <attr name="watermarkText" format="string"/>
+        <!--水印文字的大小-->
+        <attr name="watermarkTextSize" format="dimension"/>
         <!--水印的位置-->
         <attr name="watermarkLocation">
             <flag name="top" value="0x01" />
@@ -43,5 +47,6 @@
         <attr name="indicatorNotSelectedBackgroundColor" format="color"/>
         <!--指示器的宽度-->
         <attr name="indicatorStrokeWidth" format="dimension"/>
+        
     </declare-styleable>
 </resources>
