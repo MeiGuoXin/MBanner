@@ -15,7 +15,7 @@
 - [x] 点击图片时间回调(待开发) 
 
 ## 效果显示
-![image](https://github.com/MeiGuoXin/MBanner/blob/master/app/src/main/java/com/mgx/mbanner/sample/image/1585732787919.gif)
+![image](https://gitee.com/ideally/MBanner/blob/master/app/src/main/java/com/mgx/mbanner/sample/image/1585732787919.gif)
 
 ## 开放API
 方法名  | 方法描述  | 说明
