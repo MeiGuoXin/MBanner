@@ -33,7 +33,7 @@ android {
         userOrg = 'meiguoxin'//bintray.com用户名
         groupId = 'com.meiguoxin'//jcenter上的路径
         artifactId = 'mBanner'//项目名称
-        publishVersion = '1.0.0'//版本号
+        publishVersion = '1.0.1'//版本号
         //【视频图片混播】支持视频边缓存边播放，支持Glide加载图片
         desc = 'This is a round robin of video and picture mixed broadcast'//描述，不重要
         website = 'https://github.com/MeiGuoXin/MBanner'
