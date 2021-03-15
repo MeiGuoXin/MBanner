@@ -44,8 +44,6 @@ implementation 'com.meiguoxin:mbanner:1.0.1'
         android:layout_width="match_parent"
         android:layout_height="260dp"
         app:imgDelay="2000"
-		app:isPreloading="true"
-		app:preloadingPages="1"
         app:isAutomaticVideoPlayback="true"
         app:isDisplayIndicator="true"
         app:isVideoController="false">
