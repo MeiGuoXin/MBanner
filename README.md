@@ -53,20 +53,15 @@ implementation 'com.meiguoxin:mbanner:1.0.1'
 ### 3.在 Activity 或者 Fragment 中配置 MBanner 的数据源
 ```java
  private void initView() {
-   mBanner = findViewById(R.id.banner);
-   mList = new ArrayList<>();
+   banner = findViewById(R.id.banner);
+   list = new ArrayList<>();
    list.add("https://mp4.vjshi.com/2020-12-02/6abe9321e8911b4f8671c4e8e2ad2d05.mp4");
    list.add("https://seopic.699pic.com/photo/40187/0349.jpg_wh1200.jpg");
    list.add("https://seopic.699pic.com/photo/40180/4128.jpg_wh1200.jpg");
    list.add("https://seopic.699pic.com/photo/40186/8031.jpg_wh1200.jpg");
-   //数据源
-   mBanner.setDataList(mList);
-   //设置延时播放
-   mBanner.setImgDelay(5000);
-   //开始轮播
-   mBanner.startBanner();
-   //自动播放
-   mBanner.startAutoPlay();
+   banner.setDataList(list);
+   banner.startBanner();
+   banner.startAutoPlay();
 }
 ```
 ### 4.在Activity的onDestroy中进行销毁
