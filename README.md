@@ -72,6 +72,9 @@ implementation 'com.meiguoxin:mbanner:1.0.1'
 ### 4.在Activity的onDestroy中进行销毁
 
 ```java 
+/**
+*销毁 轮播图
+*/
 @Override
 protected void onDestroy() {
      super.onDestroy();
@@ -80,6 +83,9 @@ protected void onDestroy() {
 ```
 
 ```java 
+/**
+*暂停 视频播放器
+*/
 public void onPause() {
  if (mVideoView != null) {
    mVideoView.pause();
@@ -88,6 +94,9 @@ public void onPause() {
 ```
 
 ```java 
+/**
+*恢复 视频播放器
+*/
 public void onResume() {
  if (mVideoView != null) {
    mVideoView.resume();
@@ -96,6 +105,9 @@ public void onResume() {
 ```
 
 ```java 
+/**
+*销毁 视频播放器
+*/
 public void onDestroy() {
  if (mVideoView != null) {
    mVideoView.release();
