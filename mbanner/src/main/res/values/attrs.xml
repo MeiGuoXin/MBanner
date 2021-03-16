@@ -1,23 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <declare-styleable name="MBanner">
-        <!--是否显示指示器-->
-        <attr name="isDisplayIndicator" format="boolean" />
-        <!--指示器的位置-->
-        <attr name="indicatorPosition">
-            <flag name="top" value="0x01" />
-            <flag name="bottom" value="0x02" />
-            <flag name="left" value="0x04" />
-            <flag name="right" value="0x08" />
-        </attr>
         <!--是否开启视频缓存-->
         <attr name="isVideoCaching" format="boolean" />
         <!--水印文字的颜色-->
-        <attr name="watermarkTextColor" format="color"/>
+        <attr name="watermarkTextColor" format="color" />
         <!--水印文字-->
-        <attr name="watermarkText" format="string"/>
+        <attr name="watermarkText" format="string" />
         <!--水印文字的大小-->
-        <attr name="watermarkTextSize" format="dimension"/>
+        <attr name="watermarkTextSize" format="dimension" />
         <!--水印的位置-->
         <attr name="watermarkLocation">
             <flag name="top" value="0x01" />
@@ -28,25 +19,35 @@
         <!--占位图-->
         <attr name="showOccupationMap" format="reference" />
         <!--网络加载错误图片-->
-        <attr name="loadingErrorPicture" format="reference"/>
+        <attr name="loadingErrorPicture" format="reference" />
         <!--图片延时播放-->
-        <attr name="imgDelay" format="integer"/>
+        <attr name="imgDelay" format="integer" />
         <!--是否预加载-->
-        <attr name="isPreloading" format="boolean"/>
+        <attr name="isPreloading" format="boolean" />
         <!--预加载的页数-->
-        <attr name="preloadingPages" format="integer"/>
+        <attr name="preloadingPages" format="integer" />
         <!--是否显示控制器-->
-        <attr name="isVideoController" format="boolean"/>
+        <attr name="isVideoController" format="boolean" />
 
-
+        <!--指示器的位置-->
+        <attr name="indicatorPosition">
+            <flag name="left" value="0x01" />
+            <flag name="right" value="0x02" />
+            <flag name="center" value="0x03" />
+        </attr>
         <!--指示器宽度-->
-        <attr name="indicatorWidth" format="dimension"/>
+        <attr name="indicatorWidth" format="dimension" />
         <!--指示器高度-->
-        <attr name="indicatorHeight" format="dimension"/>
+        <attr name="indicatorHeight" format="dimension" />
         <!--指示器未选中颜色-->
-        <attr name="indicatorNotSelectedBackgroundColor" format="color"/>
+        <attr name="indicatorNotSelectedBackgroundColor" format="color" />
         <!--指示器的宽度-->
-        <attr name="indicatorStrokeWidth" format="dimension"/>
-        
+        <attr name="indicatorStrokeWidth" format="dimension" />
+        <!--指示器的样式-->
+        <attr name="indicatorStyle">
+            <flag name="NONE" value="0x01" />
+            <flag name="NUMBER" value="0x02" />
+            <flag name="ORDINARY" value="0x03" />
+        </attr>
     </declare-styleable>
 </resources>

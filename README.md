@@ -39,16 +39,16 @@ implementation 'com.meiguoxin:mbanner:1.0.1'
 ```
 ### 2.在xml文件中添加 MBanner
 ```xml
-  <com.mgx.mbanner.custom.MBanner
-        android:id="@+id/banner"
-        android:layout_width="match_parent"
-        android:layout_height="260dp"
-        app:imgDelay="2000"
-        app:isAutomaticVideoPlayback="true"
-        app:isDisplayIndicator="true"
-        app:isVideoController="false">
+<com.mgx.mbanner.custom.MBanner
+  android:id="@+id/banner"
+  android:layout_width="match_parent"
+  android:layout_height="260dp"
+  app:imgDelay="2000"
+  app:isAutomaticVideoPlayback="true"
+  app:isDisplayIndicator="true"
+  app:isVideoController="false">
        
-    </com.mgx.mbanner.custom.MBanner>
+</com.mgx.mbanner.custom.MBanner>
 ```
 ### 3.在 Activity 或者 Fragment 中配置 MBanner 的数据源
 ```java

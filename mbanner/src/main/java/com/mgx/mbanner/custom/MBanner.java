@@ -4,10 +4,13 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
-import android.graphics.Paint;
+import android.graphics.Color;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.ShapeDrawable;
 import android.os.Handler;
 import android.os.Message;
 import android.util.AttributeSet;
+import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.MimeTypeMap;
@@ -44,12 +47,6 @@ public class MBanner extends LinearLayout implements ViewPager.OnPageChangeListe
      * 显示占位图
      */
     private int mShowOccupationMap;
-
-    /**
-     * 是否显示指示器
-     * 默认不显示 不开启:false 开启:true
-     */
-    private boolean mIsDisplayIndicator;
 
     /**
      * 轮播图的时间间隔
@@ -102,24 +99,27 @@ public class MBanner extends LinearLayout implements ViewPager.OnPageChangeListe
      */
     private float mIndicatorHeight;
     /**
-     * 未选中图片指示器的画笔
-     */
-    private Paint mUncheckedPaint;
-
-    /**
-     * 选中图片指示器的画笔
-     */
-    private Paint mSelectPaint;
-
-    /**
      * 指示器未选中的背景颜色
      */
     private int mIndicatorNotSelectedBackgroundColor;
-
     /**
      * 指示器的实线宽度
      */
     private float mIndicatorStrokeWidth;
+
+    /**
+     * 普通指示器的容器
+     */
+    private LinearLayout mIndicatorLayout;
+    /**
+     * 指示器的间隔时间
+     */
+    private int mIndicatorInterval;
+
+    /**
+     * 指示器的类型
+     */
+    private int mIndicatorType;
 
     private ViewPager mViewPager;
     private List<String> mListData;
@@ -130,6 +130,8 @@ public class MBanner extends LinearLayout implements ViewPager.OnPageChangeListe
     //默认显示位置
     private static final int DEFAULT_DISPLAY_LOCATION = 100;
     private GetVideoDuration mGetVideoDuration;
+    private IndicatorGravity mIndicatorGravity = IndicatorGravity.CENTER;
+    private IndicatorStyle mIndicatorStyle = IndicatorStyle.ORDINARY;
 
     //每个位置默认时间间隔
     private long delayTime = 2000;
@@ -158,47 +160,106 @@ public class MBanner extends LinearLayout implements ViewPager.OnPageChangeListe
         LinearLayout.LayoutParams vp_param = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT);
         mViewPager.setLayoutParams(vp_param);
         this.addView(mViewPager);
-
+        //轮播图
         TypedArray typedArray = context.obtainStyledAttributes(attrs, R.styleable.MBanner);
         mIsVideoCaching = typedArray.getBoolean(R.styleable.MBanner_isVideoCaching, false);
         mShowOccupationMap = typedArray.getResourceId(R.styleable.MBanner_showOccupationMap, R.mipmap.seat);
         mLoadingErrorPicture = typedArray.getResourceId(R.styleable.MBanner_loadingErrorPicture, R.mipmap.err);
-        mIsDisplayIndicator = typedArray.getBoolean(R.styleable.MBanner_isDisplayIndicator, false);
         mImgDelay = typedArray.getInt(R.styleable.MBanner_imgDelay, mDefaultImgDelay);
         mIsPreloading = typedArray.getBoolean(R.styleable.MBanner_isPreloading, false);
         mPreloadingPages = typedArray.getInt(R.styleable.MBanner_preloadingPages, 0);
         mIsVideoController = typedArray.getBoolean(R.styleable.MBanner_isVideoController, false);
-        //水印的位置
+
+        //水印
         mWatermarkLocation = typedArray.getInt(R.styleable.MBanner_watermarkLocation, -1);
         mWatermarkTextColor = typedArray.getColor(R.styleable.MBanner_watermarkTextColor, getResources().getColor(R.color.dkplayer_background_color));
         mWatermarkText = typedArray.getString(R.styleable.MBanner_watermarkText);
 
-        /**
-         * 以下是指示器的属性
-         */
-        mIndicatorWidth = typedArray.getDimension(R.styleable.MBanner_indicatorWidth, new PixelConversion().sp2px(6, getContext()));
-        mIndicatorHeight = typedArray.getDimension(R.styleable.MBanner_indicatorHeight, new PixelConversion().sp2px(6, getContext()));
+        //指示器
+        mIndicatorWidth = typedArray.getDimension(R.styleable.MBanner_indicatorWidth, PixelConversion.sp2px(6, getContext()));
+        mIndicatorHeight = typedArray.getDimension(R.styleable.MBanner_indicatorHeight, PixelConversion.sp2px(6, getContext()));
         mIndicatorPosition = typedArray.getInt(R.styleable.MBanner_indicatorPosition, -1);
         mIndicatorNotSelectedBackgroundColor = typedArray.getColor(R.styleable.MBanner_indicatorNotSelectedBackgroundColor, getResources().getColor(R.color.dkplayer_background_color));
-        mIndicatorStrokeWidth = typedArray.getDimension(R.styleable.MBanner_indicatorStrokeWidth, new PixelConversion().sp2px(4, getContext()));
+        mIndicatorStrokeWidth = typedArray.getDimension(R.styleable.MBanner_indicatorStrokeWidth, PixelConversion.sp2px(4, getContext()));
+        mIndicatorType = typedArray.getInt(R.styleable.MBanner_indicatorStyle, 3);
 
+        if (mIndicatorType == 1) {
+            mIndicatorStyle = IndicatorStyle.NONE;
+        } else if (mIndicatorType == 2) {
+            mIndicatorStyle = IndicatorStyle.NUMBER;
+        } else if (mIndicatorType == 3) {
+            mIndicatorStyle = IndicatorStyle.ORDINARY;
+        }
+
+        if (mIndicatorPosition == 0x01) {
+            mIndicatorGravity = IndicatorGravity.LEFT;
+        } else if (mIndicatorPosition == 0x02) {
+            mIndicatorGravity = IndicatorGravity.RIGHT;
+        } else if (mIndicatorPosition == 0x03) {
+            mIndicatorGravity = IndicatorGravity.CENTER;
+        }
         //回收
         typedArray.recycle();
+
         if (mImgDelay <= 0) {
             //图片时间间隔必须大于0
             throw new RuntimeException("The time interval must be greater than zero");
         }
-        mUncheckedPaint = new Paint();
-        mUncheckedPaint.setAntiAlias(true);
-        mUncheckedPaint.setStyle(Paint.Style.STROKE);
-        mUncheckedPaint.setColor(mIndicatorNotSelectedBackgroundColor);
-        mUncheckedPaint.setStrokeWidth(mIndicatorStrokeWidth);
 
-        mSelectPaint = new Paint();
-        mSelectPaint.setAntiAlias(true);
-
+        addIndicatorLayout(context);
     }
 
+    /**
+     * 指示器方向
+     */
+    public enum IndicatorGravity {
+        LEFT, RIGHT, CENTER
+    }
+
+    /**
+     * 指示器类型
+     */
+    public enum IndicatorStyle {
+        //没有指示器
+        NONE,
+        //数字指示器
+        NUMBER,
+        //普通指示器
+        ORDINARY
+    }
+
+
+    protected void addIndicatorLayout(Context context) {
+        mIndicatorLayout = new LinearLayout(context);
+        LayoutParams layoutParams = new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+        layoutParams.gravity = analysisGravity(mIndicatorGravity);
+        int margins = PixelConversion.sp2px(8, context);
+        layoutParams.setMargins(margins, 0, margins, margins);
+        mIndicatorLayout.setGravity(Gravity.CENTER);
+        mIndicatorLayout.setShowDividers(LinearLayout.SHOW_DIVIDER_MIDDLE);
+        mIndicatorLayout.setDividerDrawable(getDividerDrawable(mIndicatorInterval));
+        this.addView(mIndicatorLayout, lp);
+        mIndicatorLayout.setVisibility(mIndicatorStyle == IndicatorStyle.ORDINARY ? VISIBLE : GONE);
+    }
+
+    private int analysisGravity(IndicatorGravity gravity) {
+        if (gravity == IndicatorGravity.LEFT) {
+            return Gravity.BOTTOM | Gravity.LEFT;
+        } else if (gravity == IndicatorGravity.RIGHT) {
+            return Gravity.BOTTOM | Gravity.RIGHT;
+        } else {
+            return Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL;
+        }
+    }
+
+    private Drawable getDividerDrawable(int interval) {
+        /*ShapeDrawable drawable = (ShapeDrawable) mContext.getResources().getDrawable(R.drawable.indicator_divider);
+        drawable.setIntrinsicWidth(interval);*/
+        ShapeDrawable drawable = new ShapeDrawable();
+        drawable.getPaint().setColor(Color.TRANSPARENT);
+        drawable.setIntrinsicWidth(interval);
+        return drawable;
+    }
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
@@ -214,9 +275,19 @@ public class MBanner extends LinearLayout implements ViewPager.OnPageChangeListe
         setMeasuredDimension(indicatorWidth, indicatorHeight);
     }
 
+
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
+
+    }
+
+    /**
+     * 控件大小尺寸改变才会调用
+     */
+    @Override
+    protected void onSizeChanged(int w, int h, int oldw, int oldh) {
+        super.onSizeChanged(w, h, oldw, oldh);
 
     }
 
@@ -307,6 +378,7 @@ public class MBanner extends LinearLayout implements ViewPager.OnPageChangeListe
         mVideoView.start();
         mViews.add(mVideoView);
     }
+
     /**
      * 开始轮播
      */
@@ -464,7 +536,7 @@ public class MBanner extends LinearLayout implements ViewPager.OnPageChangeListe
     }
 
     /**
-     * 销毁
+     * 销毁 轮播图
      */
     public void destroy() {
         mHandler.removeCallbacksAndMessages(null);
@@ -478,7 +550,7 @@ public class MBanner extends LinearLayout implements ViewPager.OnPageChangeListe
     }
 
     /**
-     * 暂停
+     * 暂停 视频播放器
      */
     public void onPause() {
         if (mVideoView != null) {
@@ -487,7 +559,7 @@ public class MBanner extends LinearLayout implements ViewPager.OnPageChangeListe
     }
 
     /**
-     * 恢复
+     * 恢复 视频播放器
      */
     public void onResume() {
         if (mVideoView != null) {
@@ -496,7 +568,7 @@ public class MBanner extends LinearLayout implements ViewPager.OnPageChangeListe
     }
 
     /**
-     * 销毁
+     * 销毁 视频播放器
      */
     public void onDestroy() {
         if (mVideoView != null) {
