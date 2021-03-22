@@ -13,6 +13,7 @@ import androidx.appcompat.app.AppCompatActivity;
 public class MainActivity extends AppCompatActivity {
     private MBanner banner;
     private List<String> list;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -28,6 +29,7 @@ public class MainActivity extends AppCompatActivity {
         list.add("https://seopic.699pic.com/photo/40180/4128.jpg_wh1200.jpg");
         list.add("https://seopic.699pic.com/photo/40186/8031.jpg_wh1200.jpg");
         banner.setDataList(list);
+        banner.setIndicatorRes(R.drawable.shape_point_select,R.drawable.shape_point_unselect);
         banner.startBanner();
         banner.startAutoPlay();
     }

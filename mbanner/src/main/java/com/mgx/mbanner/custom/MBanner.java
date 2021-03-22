@@ -47,7 +47,6 @@ public class MBanner extends LinearLayout implements ViewPager.OnPageChangeListe
      * 显示占位图
      */
     private int mShowOccupationMap;
-
     /**
      * 轮播图的时间间隔
      */
@@ -89,37 +88,26 @@ public class MBanner extends LinearLayout implements ViewPager.OnPageChangeListe
      * 是否显示视频控制器
      */
     private boolean mIsVideoController;
-
-    /**
-     * 指示器宽度
-     */
-    private float mIndicatorWidth;
-    /**
-     * 指示器高度
-     */
-    private float mIndicatorHeight;
-    /**
-     * 指示器未选中的背景颜色
-     */
-    private int mIndicatorNotSelectedBackgroundColor;
-    /**
-     * 指示器的实线宽度
-     */
-    private float mIndicatorStrokeWidth;
-
     /**
      * 普通指示器的容器
      */
     private LinearLayout mIndicatorLayout;
     /**
-     * 指示器的间隔时间
+     * 指示器的间隔距离
      */
     private int mIndicatorInterval;
-
     /**
      * 指示器的类型
      */
     private int mIndicatorType;
+    /**
+     * 选中的图片
+     */
+    private Drawable mIndicatorSelectDrawable;
+    /**
+     * 未选中的图片
+     */
+    private Drawable mIndicatorUnSelectDrawable;
 
     private ViewPager mViewPager;
     private List<String> mListData;
@@ -136,6 +124,7 @@ public class MBanner extends LinearLayout implements ViewPager.OnPageChangeListe
     //每个位置默认时间间隔
     private long delayTime = 2000;
     private LinearLayout.LayoutParams lp;
+    private Context mContext;
 
     public MBanner(Context context) {
         this(context, null);
@@ -154,6 +143,7 @@ public class MBanner extends LinearLayout implements ViewPager.OnPageChangeListe
      * 初始化view
      */
     private void initView(Context context, @Nullable AttributeSet attrs) {
+        mContext=context;
         setWillNotDraw(false);
         mGetVideoDuration = new GetVideoDuration();
         mViewPager = new ViewPager(getContext());
@@ -176,12 +166,9 @@ public class MBanner extends LinearLayout implements ViewPager.OnPageChangeListe
         mWatermarkText = typedArray.getString(R.styleable.MBanner_watermarkText);
 
         //指示器
-        mIndicatorWidth = typedArray.getDimension(R.styleable.MBanner_indicatorWidth, PixelConversion.sp2px(6, getContext()));
-        mIndicatorHeight = typedArray.getDimension(R.styleable.MBanner_indicatorHeight, PixelConversion.sp2px(6, getContext()));
         mIndicatorPosition = typedArray.getInt(R.styleable.MBanner_indicatorPosition, -1);
-        mIndicatorNotSelectedBackgroundColor = typedArray.getColor(R.styleable.MBanner_indicatorNotSelectedBackgroundColor, getResources().getColor(R.color.dkplayer_background_color));
-        mIndicatorStrokeWidth = typedArray.getDimension(R.styleable.MBanner_indicatorStrokeWidth, PixelConversion.sp2px(4, getContext()));
         mIndicatorType = typedArray.getInt(R.styleable.MBanner_indicatorStyle, 3);
+        mIndicatorInterval = typedArray.getDimensionPixelOffset(R.styleable.MBanner_indicatorInterval, PixelConversion.sp2px(5, getContext()));
 
         if (mIndicatorType == 1) {
             mIndicatorStyle = IndicatorStyle.NONE;
@@ -238,8 +225,73 @@ public class MBanner extends LinearLayout implements ViewPager.OnPageChangeListe
         mIndicatorLayout.setGravity(Gravity.CENTER);
         mIndicatorLayout.setShowDividers(LinearLayout.SHOW_DIVIDER_MIDDLE);
         mIndicatorLayout.setDividerDrawable(getDividerDrawable(mIndicatorInterval));
-        this.addView(mIndicatorLayout, lp);
+        this.addView(mIndicatorLayout, layoutParams);
         mIndicatorLayout.setVisibility(mIndicatorStyle == IndicatorStyle.ORDINARY ? VISIBLE : GONE);
+    }
+
+    /**
+     * 设置指示器资源
+     * @param selectRes   选中的效果资源
+     * @param unSelectRes 未选中的效果资源
+     * @return
+     */
+    public MBanner setIndicatorRes(int selectRes, int unSelectRes) {
+        mIndicatorSelectDrawable = mContext.getResources().getDrawable(selectRes);
+        mIndicatorUnSelectDrawable = mContext.getResources().getDrawable(unSelectRes);
+        updateIndicator();
+        return this;
+    }
+
+    /**
+     * 更新指示器
+     */
+    private void updateIndicator() {
+        if (mIndicatorStyle == IndicatorStyle.ORDINARY) {
+            int count = mIndicatorLayout.getChildCount();
+            int currentPage = getCurrentItem();
+            if (count > 0) {
+                for (int i = 0; i < count; i++) {
+                    ImageView view = (ImageView) mIndicatorLayout.getChildAt(i);
+                    if (i == currentPage) {
+                        view.setImageDrawable(mIndicatorSelectDrawable);
+                    } else {
+                        view.setImageDrawable(mIndicatorUnSelectDrawable);
+                    }
+                }
+            }
+        } else if (mIndicatorStyle == IndicatorStyle.NUMBER) {
+            /*if (mBannerCount > 0) {
+                mNumberIndicator.setVisibility(VISIBLE);
+                mNumberIndicator.setText((getCurrentItem() + 1) + "/" + mBannerCount);
+            } else {
+                mNumberIndicator.setVisibility(GONE);
+            }*/
+        }
+    }
+
+    public int getCurrentItem() {
+        return getActualPosition(mViewPager.getCurrentItem());
+    }
+
+    private int getActualPosition(int position) {
+        if (mAdapter == null || mAdapter.getCount() == 0) {
+            return -1;
+        }
+
+        if (position == 0) {
+            return getCount() - 1;
+        } else if (position == getCount() + 1) {
+            return 0;
+        } else {
+            return position - 1;
+        }
+    }
+
+    public int getCount() {
+        if (mAdapter == null || mAdapter.getCount() == 0) {
+            return 0;
+        }
+        return mAdapter.getCount() - 2;
     }
 
     private int analysisGravity(IndicatorGravity gravity) {
@@ -253,8 +305,6 @@ public class MBanner extends LinearLayout implements ViewPager.OnPageChangeListe
     }
 
     private Drawable getDividerDrawable(int interval) {
-        /*ShapeDrawable drawable = (ShapeDrawable) mContext.getResources().getDrawable(R.drawable.indicator_divider);
-        drawable.setIntrinsicWidth(interval);*/
         ShapeDrawable drawable = new ShapeDrawable();
         drawable.getPaint().setColor(Color.TRANSPARENT);
         drawable.setIntrinsicWidth(interval);
@@ -441,14 +491,6 @@ public class MBanner extends LinearLayout implements ViewPager.OnPageChangeListe
             }
         }
     };
-
-    /**
-     * 设置占位图
-     */
-    public void setPlaceholder(ImageView imageViewId, int defaultBitmap) {
-
-    }
-
     /**
      * 数据改变
      */

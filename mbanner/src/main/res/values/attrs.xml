@@ -35,19 +35,13 @@
             <flag name="right" value="0x02" />
             <flag name="center" value="0x03" />
         </attr>
-        <!--指示器宽度-->
-        <attr name="indicatorWidth" format="dimension" />
-        <!--指示器高度-->
-        <attr name="indicatorHeight" format="dimension" />
-        <!--指示器未选中颜色-->
-        <attr name="indicatorNotSelectedBackgroundColor" format="color" />
-        <!--指示器的宽度-->
-        <attr name="indicatorStrokeWidth" format="dimension" />
         <!--指示器的样式-->
         <attr name="indicatorStyle">
             <flag name="NONE" value="0x01" />
             <flag name="NUMBER" value="0x02" />
             <flag name="ORDINARY" value="0x03" />
         </attr>
+        <!--指示器圆点之间的间隔距离-->
+        <attr name="indicatorInterval" format="dimension"/>
     </declare-styleable>
 </resources>
