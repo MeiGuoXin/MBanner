@@ -10,7 +10,7 @@
         android:id="@+id/banner"
         android:layout_width="match_parent"
         android:layout_height="260dp"
-        app:imgDelay="2000"
+        app:imgDelay="3000"
         app:indicatorPosition="left"
         app:isPreloading="true"
         app:indicatorStyle="ORDINARY"

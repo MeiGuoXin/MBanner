@@ -23,7 +23,11 @@ import com.dueeeke.videocontroller.StandardVideoController;
 import com.dueeeke.videoplayer.player.VideoView;
 import com.mgx.mbanner.R;
 import com.mgx.mbanner.adapter.BannerViewAdapter;
+import com.mgx.mbanner.utils.DrawIntrinsic;
+import com.mgx.mbanner.utils.GetVideoDuration;
+import com.mgx.mbanner.utils.Indicator;
 import com.mgx.mbanner.utils.PixelConversion;
+import com.mgx.mbanner.utils.VideoUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -118,13 +122,29 @@ public class MBanner extends LinearLayout implements ViewPager.OnPageChangeListe
     //默认显示位置
     private static final int DEFAULT_DISPLAY_LOCATION = 100;
     private GetVideoDuration mGetVideoDuration;
-    private IndicatorGravity mIndicatorGravity = IndicatorGravity.CENTER;
-    private IndicatorStyle mIndicatorStyle = IndicatorStyle.ORDINARY;
+    private DrawIntrinsic mDrawIntrinsic;
+    private Indicator.IndicatorGravity mIndicatorGravity = Indicator.IndicatorGravity.CENTER;
+    private Indicator.IndicatorStyle mIndicatorStyle = Indicator.IndicatorStyle.ORDINARY;
 
     //每个位置默认时间间隔
     private long delayTime = 2000;
     private LinearLayout.LayoutParams lp;
     private Context mContext;
+
+    private Runnable runnable = () -> {
+        this.mHandler.sendEmptyMessage(DEFAULT_DISPLAY_LOCATION);
+    };
+
+    @SuppressLint("HandlerLeak")
+    protected Handler mHandler = new Handler() {
+        public void handleMessage(Message msg) {
+            switch (msg.what) {
+                case DEFAULT_DISPLAY_LOCATION:
+                    mViewPager.setCurrentItem(autoCurrIndex + 1);
+                    break;
+            }
+        }
+    };
 
     public MBanner(Context context) {
         this(context, null);
@@ -146,6 +166,8 @@ public class MBanner extends LinearLayout implements ViewPager.OnPageChangeListe
         mContext=context;
         setWillNotDraw(false);
         mGetVideoDuration = new GetVideoDuration();
+        mDrawIntrinsic=new DrawIntrinsic();
+        mGetVideoDuration.setHandler(mHandler);
         mViewPager = new ViewPager(getContext());
         LinearLayout.LayoutParams vp_param = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT);
         mViewPager.setLayoutParams(vp_param);
@@ -171,19 +193,19 @@ public class MBanner extends LinearLayout implements ViewPager.OnPageChangeListe
         mIndicatorInterval = typedArray.getDimensionPixelOffset(R.styleable.MBanner_indicatorInterval, PixelConversion.sp2px(5, getContext()));
 
         if (mIndicatorType == 1) {
-            mIndicatorStyle = IndicatorStyle.NONE;
+            mIndicatorStyle = Indicator.IndicatorStyle.NONE;
         } else if (mIndicatorType == 2) {
-            mIndicatorStyle = IndicatorStyle.NUMBER;
+            mIndicatorStyle = Indicator.IndicatorStyle.NUMBER;
         } else if (mIndicatorType == 3) {
-            mIndicatorStyle = IndicatorStyle.ORDINARY;
+            mIndicatorStyle = Indicator.IndicatorStyle.ORDINARY;
         }
 
         if (mIndicatorPosition == 0x01) {
-            mIndicatorGravity = IndicatorGravity.LEFT;
+            mIndicatorGravity = Indicator.IndicatorGravity.LEFT;
         } else if (mIndicatorPosition == 0x02) {
-            mIndicatorGravity = IndicatorGravity.RIGHT;
+            mIndicatorGravity = Indicator.IndicatorGravity.RIGHT;
         } else if (mIndicatorPosition == 0x03) {
-            mIndicatorGravity = IndicatorGravity.CENTER;
+            mIndicatorGravity = Indicator.IndicatorGravity.CENTER;
         }
         //回收
         typedArray.recycle();
@@ -196,25 +218,6 @@ public class MBanner extends LinearLayout implements ViewPager.OnPageChangeListe
         addIndicatorLayout(context);
     }
 
-    /**
-     * 指示器方向
-     */
-    public enum IndicatorGravity {
-        LEFT, RIGHT, CENTER
-    }
-
-    /**
-     * 指示器类型
-     */
-    public enum IndicatorStyle {
-        //没有指示器
-        NONE,
-        //数字指示器
-        NUMBER,
-        //普通指示器
-        ORDINARY
-    }
-
 
     protected void addIndicatorLayout(Context context) {
         mIndicatorLayout = new LinearLayout(context);
@@ -224,15 +227,15 @@ public class MBanner extends LinearLayout implements ViewPager.OnPageChangeListe
         layoutParams.setMargins(margins, 0, margins, margins);
         mIndicatorLayout.setGravity(Gravity.CENTER);
         mIndicatorLayout.setShowDividers(LinearLayout.SHOW_DIVIDER_MIDDLE);
-        mIndicatorLayout.setDividerDrawable(getDividerDrawable(mIndicatorInterval));
+        mIndicatorLayout.setDividerDrawable(mDrawIntrinsic.getDividerDrawable(mIndicatorInterval));
         this.addView(mIndicatorLayout, layoutParams);
-        mIndicatorLayout.setVisibility(mIndicatorStyle == IndicatorStyle.ORDINARY ? VISIBLE : GONE);
+        mIndicatorLayout.setVisibility(mIndicatorStyle == Indicator.IndicatorStyle.ORDINARY ? VISIBLE : GONE);
     }
 
     /**
      * 设置指示器资源
-     * @param selectRes   选中的效果资源
-     * @param unSelectRes 未选中的效果资源
+     * @param selectRes   选中图片
+     * @param unSelectRes 未选中图片
      * @return
      */
     public MBanner setIndicatorRes(int selectRes, int unSelectRes) {
@@ -246,7 +249,7 @@ public class MBanner extends LinearLayout implements ViewPager.OnPageChangeListe
      * 更新指示器
      */
     private void updateIndicator() {
-        if (mIndicatorStyle == IndicatorStyle.ORDINARY) {
+        if (mIndicatorStyle == Indicator.IndicatorStyle.ORDINARY) {
             int count = mIndicatorLayout.getChildCount();
             int currentPage = getCurrentItem();
             if (count > 0) {
@@ -259,7 +262,7 @@ public class MBanner extends LinearLayout implements ViewPager.OnPageChangeListe
                     }
                 }
             }
-        } else if (mIndicatorStyle == IndicatorStyle.NUMBER) {
+        } else if (mIndicatorStyle == Indicator.IndicatorStyle.NUMBER) {
             /*if (mBannerCount > 0) {
                 mNumberIndicator.setVisibility(VISIBLE);
                 mNumberIndicator.setText((getCurrentItem() + 1) + "/" + mBannerCount);
@@ -269,7 +272,7 @@ public class MBanner extends LinearLayout implements ViewPager.OnPageChangeListe
         }
     }
 
-    public int getCurrentItem() {
+    private int getCurrentItem() {
         return getActualPosition(mViewPager.getCurrentItem());
     }
 
@@ -277,7 +280,6 @@ public class MBanner extends LinearLayout implements ViewPager.OnPageChangeListe
         if (mAdapter == null || mAdapter.getCount() == 0) {
             return -1;
         }
-
         if (position == 0) {
             return getCount() - 1;
         } else if (position == getCount() + 1) {
@@ -287,28 +289,21 @@ public class MBanner extends LinearLayout implements ViewPager.OnPageChangeListe
         }
     }
 
-    public int getCount() {
+    private int getCount() {
         if (mAdapter == null || mAdapter.getCount() == 0) {
             return 0;
         }
         return mAdapter.getCount() - 2;
     }
 
-    private int analysisGravity(IndicatorGravity gravity) {
-        if (gravity == IndicatorGravity.LEFT) {
+    private int analysisGravity(Indicator.IndicatorGravity gravity) {
+        if (gravity == Indicator.IndicatorGravity.LEFT) {
             return Gravity.BOTTOM | Gravity.LEFT;
-        } else if (gravity == IndicatorGravity.RIGHT) {
+        } else if (gravity == Indicator.IndicatorGravity.RIGHT) {
             return Gravity.BOTTOM | Gravity.RIGHT;
         } else {
             return Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL;
         }
-    }
-
-    private Drawable getDividerDrawable(int interval) {
-        ShapeDrawable drawable = new ShapeDrawable();
-        drawable.getPaint().setColor(Color.TRANSPARENT);
-        drawable.setIntrinsicWidth(interval);
-        return drawable;
     }
 
     @Override
@@ -329,7 +324,6 @@ public class MBanner extends LinearLayout implements ViewPager.OnPageChangeListe
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-
     }
 
     /**
@@ -365,7 +359,7 @@ public class MBanner extends LinearLayout implements ViewPager.OnPageChangeListe
                     url = mListData.get(i - 1);
                 }
                 //视频
-                if (videoType(url)) {
+                if (VideoUtils.videoType(url)) {
                     setVideoSelection(url, lp);
                 } else {
                     setImageSelection(lp, url);
@@ -374,30 +368,11 @@ public class MBanner extends LinearLayout implements ViewPager.OnPageChangeListe
         } else if (mListData.size() == 1) {
             autoCurrIndex = 0;
             String url = mListData.get(0);
-            if (videoType(url)) {
+            if (VideoUtils.videoType(url)) {
                 setVideoSelection(url, lp);
             } else {
                 setImageSelection(lp, url);
             }
-        }
-    }
-
-    /**
-     * 支持视频的格式
-     */
-    protected boolean videoType(String url) {
-        if (MimeTypeMap.getFileExtensionFromUrl(url).equals("mp4")
-                || MimeTypeMap.getFileExtensionFromUrl(url).equals("m3u8")
-                || MimeTypeMap.getFileExtensionFromUrl(url).equals("flv")
-                || MimeTypeMap.getFileExtensionFromUrl(url).equals("avi")
-                || MimeTypeMap.getFileExtensionFromUrl(url).equals("file")
-                || MimeTypeMap.getFileExtensionFromUrl(url).equals("mkv")
-                || MimeTypeMap.getFileExtensionFromUrl(url).equals("https")
-                || MimeTypeMap.getFileExtensionFromUrl(url).equals("http")
-        ) {
-            return true;
-        } else {
-            return false;
         }
     }
 
@@ -456,41 +431,6 @@ public class MBanner extends LinearLayout implements ViewPager.OnPageChangeListe
         }
     }
 
-    private Runnable runnable = () -> {
-        this.mHandler.sendEmptyMessage(DEFAULT_DISPLAY_LOCATION);
-    };
-
-    /**
-     * 获取视频时长以及已经播放的时间
-     */
-    protected class GetVideoDuration implements Runnable {
-        private VideoView videoView;
-        private Runnable runnable;
-
-        public void getDelayTime(VideoView videoView, Runnable runnable) {
-            this.videoView = videoView;
-            this.runnable = runnable;
-        }
-
-        @Override
-        public void run() {
-            long current = videoView.getCurrentPosition();
-            long duration = videoView.getDuration();
-            long delyedTime = duration - current;
-            mHandler.postDelayed(runnable, delyedTime);
-        }
-    }
-
-    @SuppressLint("HandlerLeak")
-    protected Handler mHandler = new Handler() {
-        public void handleMessage(Message msg) {
-            switch (msg.what) {
-                case DEFAULT_DISPLAY_LOCATION:
-                    mViewPager.setCurrentItem(autoCurrIndex + 1);
-                    break;
-            }
-        }
-    };
     /**
      * 数据改变
      */
@@ -578,9 +518,12 @@ public class MBanner extends LinearLayout implements ViewPager.OnPageChangeListe
     }
 
     /**
-     * 销毁 轮播图
+     * 销毁 轮播图和视频播放器
      */
     public void destroy() {
+        if (mVideoView != null) {
+            mVideoView.release();
+        }
         mHandler.removeCallbacksAndMessages(null);
         mHandler = null;
         mGetVideoDuration = null;
@@ -594,7 +537,7 @@ public class MBanner extends LinearLayout implements ViewPager.OnPageChangeListe
     /**
      * 暂停 视频播放器
      */
-    public void onPause() {
+    public void videoPause() {
         if (mVideoView != null) {
             mVideoView.pause();
         }
@@ -603,18 +546,9 @@ public class MBanner extends LinearLayout implements ViewPager.OnPageChangeListe
     /**
      * 恢复 视频播放器
      */
-    public void onResume() {
+    public void videoResume() {
         if (mVideoView != null) {
             mVideoView.resume();
-        }
-    }
-
-    /**
-     * 销毁 视频播放器
-     */
-    public void onDestroy() {
-        if (mVideoView != null) {
-            mVideoView.release();
         }
     }
 }
